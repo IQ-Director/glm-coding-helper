@@ -2,7 +2,7 @@
 // @name         智谱 GLM Coding Plan 抢购助手 + 本地 OCR 自动验证码
 // @namespace    http://tampermonkey.net/
 // @version      8.8
-// @description  智谱 GLM Coding Plan 抢购油猴脚本 / Tampermonkey 助手，配合本地 CPU/GPU OCR 后端自动识别中文点选验证码并点击，支持多窗口、限流重试和支付页安全保护
+// @description  GLM Coding Rush / 智谱 GLM Coding Plan 抢购助手，一键抢购油猴脚本 / Tampermonkey userscript，配合本地 CPU/GPU OCR 自动识别中文点选验证码并点击，支持多窗口并发、限流重试和支付页安全保护
 // @author       mumumi
 // @include      https://*bigmodel.cn/glm-coding*
 // @match        https://bigmodel.cn/glm-coding*

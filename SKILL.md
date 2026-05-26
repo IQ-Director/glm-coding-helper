@@ -1,11 +1,11 @@
 ---
 name: glm-coding-helper-install
-description: Install, configure, verify, explain, and repair the 智谱 GLM Coding Plan 抢购助手 / GLM Coding Plan rush helper project for non-technical Windows users. Use when a user wants an AI agent to set up the local CPU/GPU OCR backend, Tampermonkey/油猴 userscript, GLM Coding Plan 抢购 flow, Chinese captcha OCR auto-click service, GreasyFork/GitHub release copy, or troubleshoot backend/browser/OCR/payment-popup issues in this repository.
+description: Install, configure, verify, explain, and repair the 智谱 GLM Coding Plan 抢购助手 / GLM Coding Rush helper project for non-technical Windows users. Use when a user wants an AI agent to set up the local CPU/GPU OCR backend, Tampermonkey/油猴 userscript, GLM Coding Plan 抢购 flow, one-click purchase helper, Chinese captcha OCR auto-click service, GreasyFork/GitHub release copy, or troubleshoot backend/browser/OCR/payment-popup issues in this repository.
 ---
 
 # GLM Coding Plan Rush Helper Install And Repair Skill
 
-This skill helps an AI agent install and repair the 智谱 GLM Coding Plan 抢购助手 project end to end.
+This skill helps an AI agent install and repair the 智谱 GLM Coding Plan 抢购助手 / GLM Coding Rush project end to end.
 The target user may not know Python, PowerShell, Git, virtual environments, browser extension
 permissions, or OCR backends. Act as the user's local setup engineer.
 

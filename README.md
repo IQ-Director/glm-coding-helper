@@ -1,10 +1,14 @@
 # 智谱 GLM Coding Plan 抢购助手 + 本地 OCR 自动验证码
 
-智谱 GLM Coding Plan 抢购助手，油猴脚本 / Tampermonkey 脚本 + 本地 CPU/GPU OCR 后端，用于 GLM Coding Plan 限时抢购、中文点选验证码自动识别、验证码自动点击、套餐按钮提前可点、限流重试和多窗口抢购辅助。
+这是一个面向智谱 GLM Coding Plan 的抢购辅助项目，包含 Tampermonkey 油猴脚本和本地 CPU/GPU OCR 后端，用于限时抢购流程辅助、中文点选验证码自动识别、验证码自动点击、套餐按钮提前可点、限流重试和多窗口监控。
+
+如果你在搜索“GLM Coding Rush”“GLM Coding Plan 抢购助手”“智谱 GLM Coding Plan 抢购”“GLM Coding 抢购脚本”“GLM Coding 一键抢购”“GLM Coding Plan 油猴脚本”“Tampermonkey 抢购脚本”“GLM Coding Plan 自动验证码”“GLM Coding Plan OCR”“智谱编程套餐抢购”，这个项目就是完整的一套前端油猴脚本 + 本地识别后端。
 
 默认使用作者内置折扣入口，可获得 95 折优惠；介意者可在脚本中自行替换入口参数。
 
-关键词：智谱、智谱清言、GLM Coding、GLM Coding Plan、GLM Coding Plan 抢购、智谱 GLM Coding 抢购、油猴脚本、Tampermonkey、本地 OCR、自动验证码、中文点选验证码、验证码自动点击、CPU OCR、GPU OCR、抢购助手、订阅助手。
+关键词：GLM Coding Rush、GLM Coding Plan 抢购助手、GLM Coding Plan 抢购脚本、GLM Coding Plan 一键抢购、智谱 GLM Coding 抢购、智谱编程套餐抢购、GLM Coding 油猴脚本、Tampermonkey userscript、Auto-Purchase Userscript、自动解锁售罄、限流重试、多窗口并发、本地 OCR、CPU OCR、GPU OCR、中文点选验证码、验证码自动点击、订阅助手。
+
+English keywords: GLM Coding Rush, GLM Coding Plan auto purchase, GLM Coding Plan rush helper, GLM Coding userscript, Tampermonkey script, local OCR captcha solver, CPU OCR backend, GPU OCR backend, Chinese captcha auto click.
 
 ## 演示
 
@@ -25,6 +29,12 @@ https://github.com/user-attachments/assets/e1a56d07-5c4d-4aa1-a567-909dd25bd037
 
 ```text
 docs/backend_config.md
+```
+
+验证码识别模型从传统 CV、YOLO、GLM-OCR/VLM 标注、手搓排序模型到 PP-OCRv5 的开发历程见：
+
+```text
+docs/captcha_model_journey.md
 ```
 
 ## 快速开始
