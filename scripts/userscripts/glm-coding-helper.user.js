@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         智谱 GLM Coding Plan 抢购助手 + 本地 OCR 自动验证码
 // @namespace    http://tampermonkey.net/
-// @version      8.12
+// @version      8.15
 // @description  GLM Coding Rush / 智谱 GLM Coding Plan 抢购助手，一键抢购油猴脚本 / Tampermonkey userscript，配合本地 CPU/GPU OCR 自动识别中文点选验证码并点击，支持多窗口并发、限流重试和支付页安全保护
 // @author       mumumi
 // @include      https://*bigmodel.cn/glm-coding*
@@ -279,8 +279,26 @@
 
     const GLM_DISCOUNT_CODE = ['9G', 'XW', 'L9', 'KC', 'GZ'].join('');
     const GLM_CODING_URL = () => `https://www.bigmodel.cn/glm-coding?ic=${GLM_DISCOUNT_CODE}&closedialog=true`;
+
+    function ensureDiscountEntry() {
+        try {
+            if (!/\/glm-coding(?:\/|$)/.test(location.pathname || '')) return false;
+            const u = new URL(location.href);
+            u.protocol = 'https:';
+            u.hostname = 'www.bigmodel.cn';
+            if (location.protocol === 'https:' && location.hostname === 'www.bigmodel.cn' &&
+                u.searchParams.get('ic') === GLM_DISCOUNT_CODE && u.searchParams.get('closedialog') === 'true') return false;
+            u.searchParams.set('ic', GLM_DISCOUNT_CODE);
+            u.searchParams.set('closedialog', 'true');
+            location.replace(u.toString());
+            return true;
+        } catch {
+            return false;
+        }
+    }
  
     // ── 限流页立即跳回主页 ────────────────────────────────────────────────────
+    if (!location.href.includes('rate-limit.html') && ensureDiscountEntry()) return;
     if (location.href.includes('rate-limit.html') && EARLY_AUTO_CLOSE_INVALID) {
         location.replace(GLM_CODING_URL());
         return;
@@ -566,22 +584,24 @@
     // ── 扫描队列（过滤今日已确认售罄）────────────────────────────────────────
     const tabs      = String(CFG.TABS_PRIORITY).split(',').map(Number).filter(Boolean);
     const pkgs      = String(CFG.PACKAGES_PRIORITY).split(',').map(Number).filter(Boolean);
-    const scanQueue = tabs.flatMap(t => pkgs.map(p => ({ tab: t, pkg: p }))).filter(({ tab: t, pkg: p }) => getS(t, p) !== 1);
+    const allTargets = tabs.flatMap(t => pkgs.map(p => ({ tab: t, pkg: p })));
+    const scanQueue = allTargets.filter(({ tab: t, pkg: p }) => getS(t, p) !== 1);
  
     if (!scanQueue.length) {
-        setTimeout(() => { setBar('📭 今日所有配置套餐均已售罄，脚本停止。', '#434343'); triggerPromo(); }, 800);
-        return;
+        scanQueue.push(...allTargets);
+        setTimeout(() => setBar('📭 今日缓存显示全售罄，仍会重新扫描确认。', '#434343'), 800);
     }
  
     // ── 状态机变量 ────────────────────────────────────────────────────────────
     let state = 'SCANNING';   // SCANNING | TASK_UNIT | SLEEPING | DONE
  
     // SCANNING / TASK_UNIT
-    let qIdx = 0, sweepRestocks = [], lastTabSwitch = 0, sweepBusyCount = 0;
+    let qIdx = 0, sweepRestocks = [], lastTabSwitch = 0, sweepBusyCount = 0, emptySweepCount = 0;
+    const soldOutHits = Object.create(null);
     let taskTarget = null, taskPhase = 'IDLE', taskClickTime = 0, taskRLCount = 0;
     let lastCloseReason = '';
     let sleepUntil = 0;
-    const MAX_RL = 3, MODAL_WAIT = 15000;
+    const MAX_RL = 3, MODAL_WAIT = 15000, EMPTY_SWEEP_CONFIRM = 3, EMPTY_SWEEP_RETRY_MS = 180000, SOLD_OUT_CONFIRM = 2;
  
     // ── 工具函数 ──────────────────────────────────────────────────────────────
     function parseRestock(text) {
@@ -608,13 +628,13 @@
     }
     function isRealBizId(id) { return id && !id.startsWith('debug-'); }
  
-    // ── v8.0: 黄金时间判断（9:50-10:10）──────────────────────────────────────
+    // ── v8.0: 黄金时间判断（9:30-10:10）──────────────────────────────────────
     function isGoldenTime() {
         const now = new Date();
         const h = now.getHours();
         const m = now.getMinutes();
         const time = h * 60 + m;
-        const start = 9 * 60 + 50;  // 9:50
+        const start = 9 * 60 + 30;  // 9:30
         const end = 10 * 60 + 10;   // 10:10
         return time >= start && time <= end;
     }
@@ -905,6 +925,7 @@
     // ═══════════════════════════════════════════════════════════════════════════
     function tick() {
         if (state === 'DONE') return;
+        if (ensureDiscountEntry()) return;
  
         if (state === 'SLEEPING') {
             const rem = sleepUntil - Date.now();
@@ -942,6 +963,7 @@
         const b = btnEl(pkg);
         if (canBuy(b)) {
             taskTarget = { tab, pkg }; taskPhase = 'IDLE'; taskRLCount = 0;
+            soldOutHits[`${tab}-${pkg}`] = 0;
             setS(tab, pkg, 0); state = 'TASK_UNIT';
             setBar(`🎯 发现可购！${TABS_MAP[tab]} · ${PKGS_MAP[pkg]}，即将点击...`, '#389e0d');
             return;
@@ -968,24 +990,34 @@
         }
         if (!sweepRestocks.length && isGoldenTime()) {
             setBar(`🔥 黄金时间！系统繁忙中，持续高频监控！`, '#ff4d4f');
-            qIdx = 0; sweepRestocks = []; sweepBusyCount = 0; return;
+            qIdx = 0; sweepRestocks = []; sweepBusyCount = 0; emptySweepCount = 0; return;
         }
         if (!sweepRestocks.length) {
-            state = 'DONE'; setBar('📭 今日全部售罄，脚本停止。', '#434343'); triggerPromo(); return;
+            emptySweepCount++;
+            qIdx = 0; sweepRestocks = []; sweepBusyCount = 0;
+            if (emptySweepCount < EMPTY_SWEEP_CONFIRM) {
+                setBar(`📭 暂未发现可买/补货时间，继续确认 ${emptySweepCount}/${EMPTY_SWEEP_CONFIRM}...`, '#434343');
+                return;
+            }
+            state = 'SLEEPING';
+            sleepUntil = Date.now() + EMPTY_SWEEP_RETRY_MS;
+            setBar(`📭 连续 ${EMPTY_SWEEP_CONFIRM} 轮未发现库存，${fmt(EMPTY_SWEEP_RETRY_MS)} 后重新扫描。脚本未停止。`, '#434343');
+            return;
         }
+        emptySweepCount = 0;
         sweepRestocks.sort((a, b) => a.msUntil - b.msUntil);
         const nearest = sweepRestocks[0];
         const sleep   = calcSleepMs(nearest.msUntil);
  
-        // ── v8.0: 黄金时间（9:50-10:10）禁止刷新页面 ──────────────────────────
+        // ── v8.0: 黄金时间（9:30-10:10）禁止刷新页面 ──────────────────────────
         if (isGoldenTime()) {
             setBar(`🔥 黄金时间！补货倒计时 <b>${fmt(nearest.msUntil)}</b>，禁止刷新，高频监控！`, '#ff4d4f');
-            qIdx = 0; sweepRestocks = []; return;
+            qIdx = 0; sweepRestocks = []; sweepBusyCount = 0; return;
         }
  
         if (sleep === 0) {
             setBar(`⚡ 补货倒计时 <b>${fmt(nearest.msUntil)}</b>，高频监控！`, '#d4380d');
-            qIdx = 0; sweepRestocks = []; return;
+            qIdx = 0; sweepRestocks = []; sweepBusyCount = 0; return;
         }
         if (CFG.SMART_REFRESH) {
             state = 'SLEEPING'; sleepUntil = Date.now() + sleep;
@@ -1129,7 +1161,9 @@
     function exitTask() {
         // v8.0: 黄金时间内不标记售罄，持续重试
         if (!isGoldenTime()) {
-            setS(taskTarget.tab, taskTarget.pkg, 1);
+            const key = `${taskTarget.tab}-${taskTarget.pkg}`;
+            soldOutHits[key] = (soldOutHits[key] || 0) + 1;
+            if (soldOutHits[key] >= SOLD_OUT_CONFIRM) setS(taskTarget.tab, taskTarget.pkg, 1);
         }
         setBar(`📦 ${TABS_MAP[taskTarget.tab]} · ${PKGS_MAP[taskTarget.pkg]} 售罄，继续...`);
         qIdx++; taskTarget = null; taskPhase = 'IDLE'; taskRLCount = 0;

@@ -167,7 +167,7 @@ Use the user's own procedure when explaining the workflow:
 1. Install Tampermonkey, configure the userscript, and enable required Chrome extension permissions.
 2. Install the backend from GitHub manually or ask an AI assistant to follow this skill.
 3. Open the rush page and test that everything works before the real rush window.
-4. Enter the rush page before 9:50 every day. It may be hard to open later.
+4. Enter the rush page before 9:30 every day. It may be hard to open later.
 5. Prepare mobile Alipay payment in advance. A payment page with an amount can still fail if payment is too late.
 6. Open several windows. Near 10:00, solve/click captchas but do not confirm too early; start confirming at 10:00.
 7. If the first wave fails, keep one window and let local OCR identify and click.

@@ -78,7 +78,7 @@ GLM Coding Helper portable CPU package
 
 1. Install or update Tampermonkey script from glm-coding-helper.user.js.
 2. Double-click start-backend.cmd or 启动后端.cmd.
-3. Open https://www.bigmodel.cn/glm-coding.
+3. Open https://www.bigmodel.cn/glm-coding?ic=9GXWL9KCGZ.
 
 This package includes the CPU Python environment and local model files.
 "@

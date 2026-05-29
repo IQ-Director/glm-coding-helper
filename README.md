@@ -119,22 +119,18 @@ one-click-start.cmd
 http://127.0.0.1:8888
 ```
 
-然后打开 GLM Coding Plan 页面：
+然后打开 GLM Coding Plan 页面。推荐使用 95 折优惠链接进入：
 
 ```text
-https://www.bigmodel.cn/glm-coding
+https://www.bigmodel.cn/glm-coding?ic=9GXWL9KCGZ
 ```
-
-也推荐从 95 折优惠链接进入：
-
-👉 https://www.bigmodel.cn/glm-coding?ic=9GXWL9KCGZ
 
 ## 抢购步骤
 
 1. 先安装好油猴插件，配置好油猴脚本。使用 Chrome 时要在扩展页面开启开发者模式，然后找到 Tampermonkey 详情，把“允许用户脚本”“在无痕模式下启用”“允许访问文件网址”按需打开。
 2. 下载并解压 Release 包，双击 `start-backend.cmd` 或 `one-click-start.cmd` 启动本地后端。
 3. 打开抢购网址测试脚本是否正常。推荐由此进入：👉 95 折优惠链接：https://www.bigmodel.cn/glm-coding?ic=9GXWL9KCGZ
-4. 每天 9 点 50 分前进入抢购页面准备，晚了可能就打不开了。提前准备好手机支付宝付款。
+4. 每天 9 点 30 分前进入抢购页面准备，晚了可能就打不开了。提前准备好手机支付宝付款。
 5. 多开几个窗口，等快到 10 点的时候点击好验证码但不要确定，等 10 点一到再按确定。
 6. 如果这波没抢到，就盯着一个窗口用 OCR 识别点击。默认不会自动关闭支付页面。注意：如果看到没有金额的支付页面，那就是没抢到，要关掉继续抢。这时可以使用快捷键快速操作。
 
